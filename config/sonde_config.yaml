@@ -1,0 +1,12 @@
+main:
+  name: "balloon_kalman"
+  version: "1.0.0"
+  base_path: 'cwd'
+  data_path: "/home/zleffke/log/sonde" #Path to RadioSonde log files
+observer:
+  name: "KJ4QLP_QTH"
+  lat: 37.1548050
+  lon: -80.5674639
+  alt: 572
+kalman:
+  sample_time: 0.25 #sample rate for kalman filter, filter output rate
