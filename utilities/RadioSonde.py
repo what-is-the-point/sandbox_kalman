@@ -59,6 +59,11 @@ def ImportRadioSondeFile(data_path, serial):
     print("Importing Radio Sonde Log file: {:s}".format(fp))
 
     df = pd.read_json(fp, lines=True)
+    original_count = len(df)
+    df.drop_duplicates(subset=['datetime'], keep='first', inplace=True, ignore_index=True)
+    filtered_count = len(df)
+    print("Original Data Point Count: {:d}".format(original_count))
+    print("Filtered Data Point Count: {:d}".format(filtered_count))
     return df
 
 

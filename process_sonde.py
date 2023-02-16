@@ -10,10 +10,14 @@ import datetime
 import json, csv, yaml
 import subprocess
 import sondehub
+import math
+import copy
 from binascii import *
+import pandas as pd
 
 from utilities import RadioSonde as rs
 from utilities import plotting
+from utilities import razel
 
 obs = {}
 cnt = 0
@@ -35,6 +39,7 @@ def import_configs_yaml(args):
     if cfg['main']['base_path'] == 'cwd':
         cfg['main']['base_path'] = os.getcwd()
     cfg['serial'] = args.serial
+    cfg['plot']=args.plot
     return cfg
 
 
@@ -66,6 +71,12 @@ if __name__ == '__main__':
                        default=None,
                        help="Radiosonde Serial",
                        action="store")
+    cfg.add_argument('--plot',
+                       dest='plot',
+                       type=bool,
+                       default=False,
+                       help="Plot Radiosonde Data",
+                       action="store")
     args = parser.parse_args()
     #--------END Command Line argument parser-----------------
     #print(chr(27) + "[2J")
@@ -91,19 +102,44 @@ if __name__ == '__main__':
     df = rs.ImportRadioSondeFile(cfg['main']['data_path'], cfg['serial'])
     df.name = cfg['serial']
     print(df.info())
-    print(df)
-    df.drop_duplicates(subset=['datetime'], keep='first', inplace=True, ignore_index=True)
-    print(df.info())
     print(df.head(20))
     print(df.name)
 
-    #plotting.PlotAltitude(df,cfg, idx=1)
-    #plotting.PlotTemperature(df,cfg, idx=2)
-    plotting.PlotAltitudeTemperature(df,cfg, idx=2)
-    plotting.PlotTemperatureVsAltitude(df,cfg, idx=2)
-    plotting.PlotAltitudeVsTemperature(df,cfg, idx=2)
-    plotting.PlotBattery(df,cfg, idx=2)
-    plotting.PlotBatteryTemperature(df,cfg, idx=2)
+    if cfg['plot']:
+        #plotting.PlotAltitude(df,cfg, idx=1)
+        #plotting.PlotTemperature(df,cfg, idx=2)
+        # plotting.PlotAltitudeTemperature(df,cfg, idx=2)
+        # plotting.PlotTemperatureVsAltitude(df,cfg, idx=2)
+        # plotting.PlotAltitudeVsTemperature(df,cfg, idx=2)
+        # plotting.PlotBattery(df,cfg, idx=2)
+        # plotting.PlotBatteryTemperature(df,cfg, idx=2)
+        plotting.PlotHorizontalVelocityVsAltitude(df,cfg, idx=2)
+
+    keep_list = ['datetime', 'lat', 'lon', 'alt', 'heading', 'vel_h', 'vel_v']
+    df_meas = df[keep_list]
+    
+    print(df_meas.info())
+
+    deg2rad = math.pi / 180.0
+    # result = razel.LLH_To_ECEF(df['lat'] * deg2rad, df['lon']*deg2rad, df['alt']/1000.0)
+
+    df_ecef = pd.DataFrame(df_meas.apply(lambda x: razel.LLH_To_ECEF(x['lat']*deg2rad, 
+                                                                     x['lon']*deg2rad, 
+                                                                     x['alt']/1000.0), axis=1).to_list(), 
+                                                                     columns=['i','j','k'])
+    
+    # df_ecef = pd.DataFrame(a.to_list(), columns=['i','j','k'])
+    df_meas = pd.concat([df_meas, df_ecef], axis=1, join='inner')
+    df_meas.name = cfg['serial']
+
+    print(df_meas)
+    print(df_meas.name)
+    # df_meas['i'] a[0]
+    # df_measa['i']['j'], df_meas['k'])
+    
+
+
+
 
     sys.exit()
 

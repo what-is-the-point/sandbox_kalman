@@ -16,6 +16,26 @@ from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 import matplotlib.dates as mdates
 import matplotlib.colors as colors
 
+
+def PlotHorizontalVelocityVsAltitude(df, cfg, idx=0):
+    xinch = 14
+    yinch = 7
+    fig1=plt.figure(idx, figsize=(xinch,yinch/.8))
+    ax1 = fig1.add_subplot(1,1,1)
+    #Configure Grids
+    ax1.xaxis.grid(True,'major', linewidth=1)
+    ax1.yaxis.grid(True,'minor')
+    ax1.yaxis.grid(True,'major', linewidth=1)
+    ax1.yaxis.grid(True,'minor')
+    #Configure Labels and Title
+    ax1.set_xlabel('Horizontal Velocity [m/s]')
+    ax1.set_ylabel('Altitude [m]')
+    title = "Horizontal Velocity Vs Altitude"
+    ax1.set_title(title)
+    ax1.plot(df['vel_h'], df['alt'], linestyle='-', color='b', label="Battery [V]")
+    plt.show()
+
+
 def PlotBatteryTemperature(df, cfg, idx=0):
     xinch = 14
     yinch = 7
