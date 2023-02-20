@@ -17,7 +17,7 @@ import pandas as pd
 
 from utilities import RadioSonde as rs
 from utilities import plotting
-from utilities import razel
+from utilities import astro
 
 obs = {}
 cnt = 0
@@ -123,13 +123,20 @@ if __name__ == '__main__':
     deg2rad = math.pi / 180.0
     # result = razel.LLH_To_ECEF(df['lat'] * deg2rad, df['lon']*deg2rad, df['alt']/1000.0)
 
-    df_ecef = pd.DataFrame(df_meas.apply(lambda x: razel.LLH_To_ECEF(x['lat']*deg2rad, 
+    df_ecef = pd.DataFrame(df_meas.apply(lambda x: astro.LLH_To_ECEF(x['lat']*deg2rad, 
                                                                      x['lon']*deg2rad, 
                                                                      x['alt']/1000.0), axis=1).to_list(), 
                                                                      columns=['i','j','k'])
-    
-    # df_ecef = pd.DataFrame(a.to_list(), columns=['i','j','k'])
-    df_meas = pd.concat([df_meas, df_ecef], axis=1, join='inner')
+  
+    df_dot = pd.DataFrame(df_meas.apply(lambda x: astro.SpeedHeading_To_ECEF(x['lat']*deg2rad, 
+                                                                    x['lon']*deg2rad, 
+                                                                    x['vel_h'],
+                                                                    x['vel_v'],
+                                                                    x['heading']*deg2rad,
+                                                                    km=True), axis=1).to_list(), 
+                                                                    columns=['i_dot','j_dot','k_dot'])
+
+    df_meas = pd.concat([df_meas, df_ecef, df_dot], axis=1, join='inner')
     df_meas.name = cfg['serial']
 
     print(df_meas)

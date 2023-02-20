@@ -67,6 +67,39 @@ sonde_msg = {
 }
 
 #--Range Calculations Functions------
+def SpeedHeading_To_ECEF(lat, lon, vel_h, vel_v, heading, km = False):
+    # INPUT:
+    #     lat - latitude [radians]
+    #     lon - longitude in [radians]
+	#     vel_v - vertical velocity [m/s]
+	#     vel_h - horizontal vocity [m/s]
+    #     heading - heading relative to North
+    #     km - False = m/s, True = km/s
+    # INTERNAL:
+    #     vel_mag - velocity magnitude, along trajectory
+    #     gamma - climb angle
+    
+    vel_mag = sqrt(pow(vel_h,2)+pow(vel_v,2))
+    gamma = asin(vel_v/vel_mag) #climb angle
+    clat = cos(lat)
+    slat = sin(lat)
+    clon = cos(lon)
+    slon = sin(lon)
+    chead = cos(heading)
+    shead = sin(heading)
+    cgamma = cos(gamma)
+    sgamma = sin(gamma)
+
+    i_dot = vel_mag*(-1*slon*cgamma*shead - clon*slat*cgamma*chead + clon*clat*sgamma)
+    j_dot = vel_mag*(clon*cgamma*shead    - slon*slat*cgamma*chead + slon*clat*sgamma)
+    k_dot = vel_mag*(0                    + clat*cgamma*shead      + slat*sgamma)
+
+    if km:
+        return i_dot/1000.0, j_dot/1000.0, k_dot/1000.0
+    else:
+        return i_dot, j_dot, k_dot
+
+
 def LLH_To_ECEF(lat, lon, h):
 	#INPUT:
 	#	h   - height above ellipsoid (MSL), km
