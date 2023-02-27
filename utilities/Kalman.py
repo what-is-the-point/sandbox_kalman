@@ -85,7 +85,7 @@ class KalmanFilter_3D(object):
         # Calculate error covariance
         # P= A*P*A' + Q               Eq.(10)
         self.P = np.dot(np.dot(self.A, self.P), self.A.T) + self.Q
-        return self.x
+        return self.P, self.x
     
     def update(self, z):
         # Refer to :Eq.(11), Eq.(12) and Eq.(13) in https://machinelearningspace.com/object-tracking-python/
@@ -100,7 +100,7 @@ class KalmanFilter_3D(object):
         # Update error covariance matrix
         self.P = (I - (K * self.H)) * self.P   #Eq.(13)
         # print(self.P)
-        return self.x
+        return self.P, self.x
     
     def get_state_estimate(self):
         return self.x

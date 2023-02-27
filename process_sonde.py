@@ -17,9 +17,11 @@ import pandas as pd
 import numpy as np
 
 from utilities import RadioSonde as rs
-from utilities import plotting
 from utilities import astro
 from utilities import Kalman
+
+from plotting import SondePlot
+from plotting import KalmanPlot
 
 obs = {}
 cnt = 0
@@ -107,6 +109,8 @@ if __name__ == '__main__':
     print(df.head(20))
     print(df.name)
 
+    
+
     if cfg['plot']:
         #plotting.PlotAltitude(df,cfg, idx=1)
         #plotting.PlotTemperature(df,cfg, idx=2)
@@ -115,12 +119,13 @@ if __name__ == '__main__':
         # plotting.PlotAltitudeVsTemperature(df,cfg, idx=2)
         # plotting.PlotBattery(df,cfg, idx=2)
         # plotting.PlotBatteryTemperature(df,cfg, idx=2)
-        plotting.PlotHorizontalVelocityVsAltitude(df,cfg, idx=2)
+        SondePlot.PlotHorizontalVelocityVsAltitude(df,cfg, idx=2)
 
     keep_list = ['datetime', 'lat', 'lon', 'alt', 'heading', 'vel_h', 'vel_v']
     df_meas = df[keep_list]
     
     print(df_meas.info())
+    sys.exit()
 
     deg2rad = math.pi / 180.0
     # result = razel.LLH_To_ECEF(df['lat'] * deg2rad, df['lon']*deg2rad, df['alt']/1000.0)
@@ -174,10 +179,17 @@ if __name__ == '__main__':
     kf.print_parameters()
     
     
+    k_list = []
+    P_list = []
+    m_list = []
+    k1_list = []
+    P1_list = []
     
     for i in range(len(df_meas[1:-1])):
-        k  = kf.predict()
-        print("   k:", k.tolist())
+        P, k = kf.predict()
+        k_list.append(k.ravel().tolist()[0])
+        P_list.append(np.diag(P).ravel().tolist())
+        # print("   k:", k.tolist())
 
         meas = np.matrix([[df_meas['i'][i+1]],
                           [df_meas['j'][i+1]],
@@ -185,16 +197,49 @@ if __name__ == '__main__':
                           [df_meas['i_dot'][i+1]],
                           [df_meas['j_dot'][i+1]],
                           [df_meas['k_dot'][i+1]]])
-        print("meas:", meas.tolist())
+        m_list.append(meas.ravel().tolist()[0])
+        # print("meas:", meas.tolist())
 
 
-        k1 = kf.update(meas)
-        print("  k1:", k1.tolist())
-        print()
+        P1, k1 = kf.update(meas)
+        k1_list.append(k1.ravel().tolist()[0])
+        P1_list.append(np.diag(P1).ravel().tolist())
+        
+        # print("  k1:", k1.tolist())
+        # print()
 
-        time.sleep(1)
+    
+    k_df = pd.DataFrame(k_list, columns=['i','j','k','i_dot','j_dot','k_dot'], dtype=float)
+    k_df.name = "estimate, {:s}".format(cfg['serial'])
+    m_df = pd.DataFrame(m_list, columns=['i','j','k','i_dot','j_dot','k_dot'], dtype=float)
+    m_df.name = "measure, {:s}".format(cfg['serial'])
+    k1_df = pd.DataFrame(k1_list, columns=['i','j','k','i_dot','j_dot','k_dot'], dtype=float)
+    print(k_df.info(), m_df.info(), k1_df.info())
+
+    P_df = pd.DataFrame(P_list, columns=['i','j','k','i_dot','j_dot','k_dot'], dtype=float)
+    P_df.name = "Predicted Error Covariance, {:s}".format(cfg['serial'])
+    P1_df = pd.DataFrame(P1_list, columns=['i','j','k','i_dot','j_dot','k_dot'], dtype=float)
+    P1_df.name = "Updated Error Covariance, {:s}".format(cfg['serial'])
+    print(P_df)
 
 
+
+    KalmanPlot.PlotErrorCovariance(P_df, cfg, idx = 1)
+    KalmanPlot.PlotErrorCovariance(P1_df, cfg, idx = 1)
+    KalmanPlot.PlotPosition(k_df, m_df, k1_df, 'i', cfg, idx = 0)
+    KalmanPlot.PlotPosition(k_df, m_df, k1_df, 'j', cfg, idx = 0)
+    KalmanPlot.PlotPosition(k_df, m_df, k1_df, 'k', cfg, idx = 0)
+    KalmanPlot.PlotVelocity(k_df, m_df, k1_df, 'i_dot', cfg, idx = 0)
+    KalmanPlot.PlotVelocity(k_df, m_df, k1_df, 'j_dot', cfg, idx = 0)
+    KalmanPlot.PlotVelocity(k_df, m_df, k1_df, 'k_dot', cfg, idx = 0)
+
+    sys.exit()
+    
+   
+
+    # time.sleep(1)
+
+    
     
 
 
