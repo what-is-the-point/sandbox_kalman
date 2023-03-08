@@ -47,7 +47,7 @@ sonde_msg = {
     "uploader_alt": 210.0
 }
 
-def ImportRadioSondeFile(data_path, serial):
+def ImportRadioSondeRaw(data_path, serial):
     fn = ".".join([serial,'log'])
     fp = "/".join([data_path,fn])
 
@@ -64,6 +64,21 @@ def ImportRadioSondeFile(data_path, serial):
     filtered_count = len(df)
     print("Original Data Point Count: {:d}".format(original_count))
     print("Filtered Data Point Count: {:d}".format(filtered_count))
+    return df
+
+def ImportRadioSondeCSV(data_path, serial):
+    fn = ".".join([serial,'csv'])
+    fp = "/".join([data_path,fn])
+
+    if not os.path.isfile(fp):
+        print("Data Log does not exist: {:s}".format(fp))
+        print("Check path, serial, file names")
+        print("Exitting...")
+        sys.exit()
+    print("Importing Radio Sonde Log file: {:s}".format(fp))
+
+    df = pd.read_csv(fp)
+    print("Data Point Count: {:d}".format(len(df)))
     return df
 
 

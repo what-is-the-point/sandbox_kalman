@@ -42,6 +42,8 @@ def import_configs_yaml(args):
 
     if cfg['main']['base_path'] == 'cwd':
         cfg['main']['base_path'] = os.getcwd()
+        cfg['main']['data_path'] = "/".join([cfg['main']['base_path'],
+                                     cfg['main']['data_path']])
     cfg['serial'] = args.serial
     cfg['plot']=args.plot
     return cfg
@@ -103,13 +105,15 @@ if __name__ == '__main__':
         filenames = next(os.walk(cfg['main']['data_path']), (None, None, []))[2]
         cfg['serial'] = filenames[0].split(".")[0]
 
-    df = rs.ImportRadioSondeFile(cfg['main']['data_path'], cfg['serial'])
+    print('Using Data Path: {:s}'.format(cfg['main']['data_path']))
+    if cfg['main']['data_type']=='csv':
+        df = rs.ImportRadioSondeCSV(cfg['main']['data_path'], cfg['serial'])
     df.name = cfg['serial']
     print(df.info())
     print(df.head(20))
     print(df.name)
 
-    
+    sys.exit()
 
     if cfg['plot']:
         #plotting.PlotAltitude(df,cfg, idx=1)

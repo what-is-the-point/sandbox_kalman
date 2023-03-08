@@ -2,7 +2,8 @@ main:
   name: "balloon_kalman"
   version: "1.0.0"
   base_path: 'cwd'
-  data_path: "./log" #Path to RadioSonde log files
+  data_path: "data/sonde" #Path to RadioSonde log files
+  data_type: 'csv'
   loop_delay: 1.0 #seconds to delay mainloop to simulate update period
 observer:
   name: "KJ4QLP_QTH"
