@@ -12,9 +12,9 @@ observer:
   alt: 572
 kalman:
   sample_time: 1.0 #sample rate for kalman filter, filter output rate
-  u_a: [0.25,0.25,0.25] #control input, acceleration tuple: X, Y, Z
+  u_a: [1,1,1] #control input, acceleration tuple: X, Y, Z
   std_acc: .25 #standard deviation of acceleration
-  pos_std_meas: [5,5,5] #standard deviation of position measurement, X Y Z, units = kilometer
-  vel_std_meas: [.5,.5,.5] #standard deviation of velocity measurement, X Y Z, units = km / sec
+  pos_std_meas: [5,5,.2] #standard deviation of position measurement, X Y Z, units = kilometer
+  vel_std_meas: [1,1,.2] #standard deviation of velocity measurement, X Y Z, units = km / sec
 
 

@@ -113,23 +113,23 @@ if __name__ == '__main__':
     print(df.head(20))
     print(df.name)
 
-    sys.exit()
+    
 
-    if cfg['plot']:
-        #plotting.PlotAltitude(df,cfg, idx=1)
-        #plotting.PlotTemperature(df,cfg, idx=2)
-        # plotting.PlotAltitudeTemperature(df,cfg, idx=2)
-        # plotting.PlotTemperatureVsAltitude(df,cfg, idx=2)
-        # plotting.PlotAltitudeVsTemperature(df,cfg, idx=2)
-        # plotting.PlotBattery(df,cfg, idx=2)
-        # plotting.PlotBatteryTemperature(df,cfg, idx=2)
-        SondePlot.PlotHorizontalVelocityVsAltitude(df,cfg, idx=2)
+    # if cfg['plot']:
+    #     #plotting.PlotAltitude(df,cfg, idx=1)
+    #     #plotting.PlotTemperature(df,cfg, idx=2)
+    #     # plotting.PlotAltitudeTemperature(df,cfg, idx=2)
+    #     # plotting.PlotTemperatureVsAltitude(df,cfg, idx=2)
+    #     # plotting.PlotAltitudeVsTemperature(df,cfg, idx=2)
+    #     # plotting.PlotBattery(df,cfg, idx=2)
+    #     # plotting.PlotBatteryTemperature(df,cfg, idx=2)
+    #     SondePlot.PlotHorizontalVelocityVsAltitude(df,cfg, idx=2)
 
     keep_list = ['datetime', 'lat', 'lon', 'alt', 'heading', 'vel_h', 'vel_v']
     df_meas = df[keep_list]
     
     print(df_meas.info())
-    sys.exit()
+    
 
     deg2rad = math.pi / 180.0
     # result = razel.LLH_To_ECEF(df['lat'] * deg2rad, df['lon']*deg2rad, df['alt']/1000.0)
@@ -160,12 +160,9 @@ if __name__ == '__main__':
     print(df_meas)
     print(df_meas.name)
 
-
-    
-
     print(cfg['kalman'])
     kf_cfg = cfg['kalman']
-    kf = Kalman.KalmanFilter_3D(dt  = kf_cfg['sample_time'],
+    kf = Kalman.KalmanFilter_3D_v2(dt  = kf_cfg['sample_time'],
                                 u_a = kf_cfg['u_a'],
                                 std_acc = kf_cfg['std_acc'],
                                 pos_std_meas = kf_cfg['pos_std_meas'],

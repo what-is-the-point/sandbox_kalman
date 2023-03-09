@@ -81,19 +81,6 @@ def ImportRadioSondeCSV(data_path, serial):
     print("Data Point Count: {:d}".format(len(df)))
     return df
 
-
-    # with open(fp, 'r') as f:
-    #     data = f.read()
-    #     # data = data.strip().split("\n")
-
-    # print (data)
-    # df = pd.read_json(data, lines=True)
-    # print(df)
-    # # return df
-
-
-
-
 def on_message(msg):
     # print(type(msg), len(msg))
     # print(json.dumps(msg, indent=4))
